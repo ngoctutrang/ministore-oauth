@@ -91,6 +91,9 @@ func AuthenticateRequest(request *http.Request) *errors.RestErr {
 
 	at, err := getAccessToken(accessTokenId)
 	if err != nil {
+		if err.Status == http.StatusNotFound {
+			return nil
+		}
 		return err
 	}
 	request.Header.Add(headerXCallerId, fmt.Sprintf("%v", at.ClientId))
@@ -119,6 +122,7 @@ func getAccessToken(accessTokenId string) (*accessToken, *errors.RestErr) {
 		if err := json.Unmarshal(response.Bytes(), &restErr); err != nil {
 			return nil, errors.NewInternalServerErr("Invalid body Request")
 		}
+
 		return nil, &restErr
 	}
 
