@@ -114,13 +114,13 @@ func getAccessToken(accessTokenId string) (*accessToken, *errors.RestErr) {
 		fmt.Sprintf("/oauth/access_token/%s", accessTokenId),
 	)
 	if response == nil || response.Response == nil {
-		return nil, errors.NewInternalServerErr("Invalid access Token")
+		return nil, errors.NewInternalServerErr("Invalid access Token", response.Err)
 	}
 
 	if response.StatusCode > 299 {
 		var restErr errors.RestErr
 		if err := json.Unmarshal(response.Bytes(), &restErr); err != nil {
-			return nil, errors.NewInternalServerErr("Invalid body Request")
+			return nil, errors.NewInternalServerErr("Invalid body Request", err)
 		}
 
 		return nil, &restErr
@@ -129,7 +129,7 @@ func getAccessToken(accessTokenId string) (*accessToken, *errors.RestErr) {
 	var at accessToken
 
 	if err := json.Unmarshal(response.Bytes(), &at); err != nil {
-		return nil, errors.NewInternalServerErr("Error while Unmashal")
+		return nil, errors.NewInternalServerErr("Error while Unmashal", err)
 	}
 
 	return &at, nil
